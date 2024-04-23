@@ -162,26 +162,23 @@ router.post("/update", async function(req, res, next) {
    })
 
 
-   router.post("/delete", async function(req, res, next) {
+   router.post("/delete", verifyToken,async function(req, res, next) {
      try{
+        console.log(req.body,"body")
         if(req.body.todolistId.length){
-            let deleteTodo 
+             
             try{
-                deleteTodo= await todolistData.deleteOne({ _id: { $in: req.body.todolistId } });
-                
-                    
+                let deleteTodo= await todolistData.deleteOne({ _id: { $in: req.body.todolistId } });
+                console.log(deleteTodo,"deleteTodo")  
+                if(deleteTodo){
+                    console.log("coming inside")
+                        let update=projectData.updateOne(
+                            { _id: ObjectId(req.body.projectId) },
+                            { $pull: { todo: { $in: req.body.todolistId }} }
+                         )
 
-                    let projectdata=await projectData.find({ _id: { $in: req.body.projectId } })
-                    console.log(projectdata,"projectdata")
-                    if(projectdata.length){
-                        let newtodo=[...projectdata[0].todo]
-                        let index = newtodo.findIndex((inddata)=>(inddata==new ObjectId(req.body.projectId)))
-                        console.log(index,"index")
-                        newtodo.splice(index,1)
-                        let updatedData = {...projectData,todo : newtodo}
-                        console.log(updatedData,"updatedData")
-                       let test= await projectData.updateOne({_id:req.body.projectId},updatedData)
-                       console.log(test,"test")
+                         console.log(update,"update")
+                     
                         return res.json({data:'sucess'})
                     }
                     
@@ -195,24 +192,7 @@ router.post("/update", async function(req, res, next) {
             }
                
             }
-            
-            if(deleteTodo){
-                res.json({data:"sucess"})
-            }
-        }else if(req.body.projectId.length){
-            let deleteTodo 
-            try{
-                deleteTodo= await projectData.deleteOne({ _id: { $in: req.body.projectId } });
-            }
-            catch{
-                res.json({error:"something went wrong"})
-            }
-            await projectData.deleteOne({ _id: { $in: req.body.projectId } });
-            if(deleteTodo){
-                res.json({data:"sucess"})
-            }
-        }else{
-            res.json({error:"something went wrong"})
+           
         }
     }catch{
         res.json({error:"something went wrong"})
