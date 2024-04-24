@@ -1,56 +1,50 @@
-import  todolistData  from "../schema/todolist.js";
-import  projectData  from "../schema/projectschema.js";
-import  login  from "../schema/login.schema.js";
+import todolistData from "../schema/todolist.js";
+import projectData from "../schema/projectschema.js";
+import login from "../schema/login.schema.js";
 
 // Example service methods
 export const AddnewTodoList = async (toDoList) => {
-    try{
+    try {
         return await todolistData.create(toDoList)
     }
-    catch{
+    catch {
         throw new Error("something wrong")
     }
-   
+
 };
 
 export const UpdateTodoList = async (toDoList) => {
-    try{
-        return await todolistData.updateOne(toDoList,toDoList._id)
+    try {
+        return await todolistData.findByIdAndUpdate(toDoList._id, toDoList)
     }
-    catch{
+    catch {
         throw new Error("something wrong")
     }
-   
+
 };
 
 export const UpdateProject = async (project) => {
-    try{
-        return await projectData.updateOne(project,project._id)
+    try {
+        return await projectData.findByIdAndUpdate(project._id, project)
     }
-    catch{
-        (e)=>{
-            console.log(e)
-            throw new Error("something wrong")
-        }
+    catch (e) {
+        console.log(e)
+        throw new Error("something wrong")
     }
 }
 
 
-export const loginCred= async (cred) => {
-    try{
-        console.log(cred,"cred")
-        if( await login.findOne(cred).length >0){
-            console.log(await login.find(cred))
+export const checkUser = async (cred) => {
+    try {
+        const user = await login.findOne(cred)
+        if (user?.username) {
             return true
-        }else{
+        } else {
             return false
         }
     }
-    catch{
-        (e)=>{
-            console.log(e)
-            return false
-            
-        }
+    catch (e) {
+        console.log(e)
+        return false
     }
 }
