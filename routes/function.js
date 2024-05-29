@@ -187,13 +187,22 @@ router.post("/delete", verifyToken, async function (req, res, next) {
             try {
                 let deleteTodo = await todolistData.findByIdAndDelete(req.body.todolistId);
                 if (deleteTodo) {
-                    await projectData.findByIdAndUpdate(req.body.projectId,
-                        { $pull: { todo: new Mongoose.Types.ObjectId("6628a39e89207d99e601829d") }, })
-                    return res.json({ data: 'sucess' })
+                   
+                        try{
+                            let deleteddata=await projectData.updateOne({
+                                _id: new  Mongoose.Types.ObjectId(req.body.projectId)},
+                                { $pull: { todo: new  Mongoose.Types.ObjectId(req.body.todolistId) }})
+                                return res.status(200).json({ data: 'sucess' })
+                        }catch(e){
+                            console.log(e)
+                            return res.status(500).json({ data: 'not updated' })
+                        }
+                    
                 }
-                return res.json({ status: "failed", msg: "Couldn't find the todo" })
+                return res.status(500).json({ status: "failed", msg: "Couldn't find the todo" })
             } catch (e) {
-                res.json({ error: "something went wrong" })
+                console.log(e,"error...")
+                res.status(500).json({ error: "something went wrong" })
             }
         }
     } catch {
